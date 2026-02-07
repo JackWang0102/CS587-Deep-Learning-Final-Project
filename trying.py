@@ -53,7 +53,6 @@ for t in range(1, N_ITER + 1):
         E_current = E_prop
     chain.append((current, E_current))
 
-# --- 結果輸出 ---
 print("MH chain (x, E):")
 for i, (x, e) in enumerate(chain):
     print(f"{i:>2d}: E={e:.4f}\n   {x}\n")
