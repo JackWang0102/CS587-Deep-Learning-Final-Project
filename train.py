@@ -100,19 +100,8 @@ for exp_id in tqdm(range(NUM_EXPERIMENTS), desc="Experiments", position=0):
                 print(f"Current: {current}")
                 
                 # Propose a new sentence
-                ### May have to modify prompt.
                 prompt = f'Rewrite this sentence in the style of Shakespeare: "{current}"'
-                # prompt = f'Paraphrase the following sentence using early modern English without mentioning Shakespeare or writing about styles:\n"{current}"'
-                # prompt = (
-                # "Paraphrase the following sentence in the style of William Shakespeare, "
-                # "using archaic pronouns (thou, thee, thy), inverted syntax, and Elizabethan diction, "
-                # "while preserving the exact meaning and punctuation. "
-                # "Do not include any direct quotations from Shakespeare's works or mention his name.\n\n"
-                # f"Sentence: \"{current}\""
-                # )
-
-                ### Could consider different temperatures later
-                ### proposal may add unnecessary words: change propmt????
+                
                 out = generator(
                     prompt, 
                     max_length=128, 
@@ -129,16 +118,6 @@ for exp_id in tqdm(range(NUM_EXPERIMENTS), desc="Experiments", position=0):
                     f"Rewrite this sentence in the style of Shakespeare: \"{current}\"", 
                     return_tensors="pt"
                 ).to(device)
-                # forward_inputs = t5_tokenizer(
-                # "Paraphrase the following sentence in the style of William Shakespeare, "
-                # "using archaic pronouns (thou, thee, thy), inverted syntax, and Elizabethan diction, "
-                # "while preserving the exact meaning and punctuation. "
-                # "Do not include any direct quotations from Shakespeare's works or mention his name.\n\n"
-                # f"Sentence: \"{current}\"",
-                # return_tensors="pt"
-                # ).to(device)
-
-
 
                 proposal_ids = t5_tokenizer(proposal, return_tensors="pt").input_ids.to(device)
 
@@ -156,14 +135,6 @@ for exp_id in tqdm(range(NUM_EXPERIMENTS), desc="Experiments", position=0):
                     f"Rewrite this Shakespeare text in modern English: \"{current}\"", 
                     return_tensors="pt"
                 ).to(device)
-                # backward_inputs = t5_tokenizer(
-                # "Paraphrase the following sentence in the style of William Shakespeare, "
-                # "using archaic pronouns (thou, thee, thy), inverted syntax, and Elizabethan diction, "
-                # "while preserving the exact meaning and punctuation. "
-                # "Do not include any direct quotations from Shakespeare's works or mention his name.\n\n"
-                # f"Sentence: \"{current}\"",
-                # return_tensors="pt"
-                # ).to(device)
 
                 current_ids = t5_tokenizer(current, return_tensors="pt").input_ids.to(device)
 

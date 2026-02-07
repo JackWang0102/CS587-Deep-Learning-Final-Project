@@ -12,31 +12,23 @@ with original_path.open("r", encoding="utf-8") as f:
 
 assert len(modern_lines) == len(original_lines), "Mismatch!"
 
-df = pd.DataFrame({     #total 27797 smaples
+df = pd.DataFrame({     # total 27797 samples
     "modern": modern_lines,
     "original": original_lines
 })
 
-# 隨機打亂資料 + 分割資料集 80% train, 10% valid, 10% test
+# shuffle and split: 80% train / 10% valid / 10% test
 df_shuffled = df.sample(frac=1, random_state=42).reset_index(drop=True)
 n = len(df_shuffled)
 df_train = df_shuffled[:int(0.8 * n)]
 df_valid = df_shuffled[int(0.8 * n):int(0.9 * n)]
 df_test  = df_shuffled[int(0.9 * n):]
 
-# 建立 classifier 資料（0: modern, 1: original）
+# classifier training data (0: modern, 1: original) using training portion only
 df_classifier = pd.concat([
     pd.DataFrame({"sentence": df_train["modern"], "label": 0}),
     pd.DataFrame({"sentence": df_train["original"], "label": 1})
 ]).sample(frac=1, random_state=42).reset_index(drop=True)
-
-# 顯示資料狀況
-# print("Train Pairs:", len(df_train))
-# print("Valid Pairs:", len(df_valid))
-# print("Test Pairs:", len(df_test))
-# print("\nClassifier preview:")
-# print(df_classifier.head())
-
 
 ########################### fine tuning ###########################
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer, TrainingArguments
@@ -57,7 +49,7 @@ def tokenize(example):
 train_dataset = train_dataset.map(tokenize, batched=True)
 val_dataset = val_dataset.map(tokenize, batched=True)
 
-# 設定模型
+# Initialize RoBERTa model for sequence classification
 model = RobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
 
 training_args = TrainingArguments(
@@ -71,8 +63,6 @@ training_args = TrainingArguments(
     logging_steps=100,
 )
 
-
-# 指標（這邊只做 accuracy）
 def compute_metrics(eval_pred):
     import numpy as np
     from sklearn.metrics import accuracy_score
@@ -89,5 +79,5 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-# 開始訓練
+# Train the model
 trainer.train()
